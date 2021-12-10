@@ -1,5 +1,7 @@
+import os
 import time
-from PIL import Image
+import PIL
+from PIL import Image, ImageSequence
 from time import sleep
 
 
@@ -91,28 +93,38 @@ def assign_ascii(B, width, height):
 
     return A
 
-img = Image.open("cat.jpg")     
-w = img.width
-h = img.height
+image = Image.open("cat.jpg")
+w = image.width
+h = image.height
 wnew = 632
 hnew = int(h - ((w-wnew)/w)*h)
-print(hnew)
-img_resized = img.resize((wnew, hnew))
 
-pixel_matrix = initialze_pixelarr(img_resized, wnew, hnew)
+if hnew>160:
+    hnew = 160
+    wnew = int(w - ((h-hnew)/h)*w)
 
-# !!!!!!!uncomment only one of these three!!!!!!!!!
+for img in ImageSequence.Iterator(image):
+    img_resized = img.resize((wnew, hnew)).convert("RGB")
 
-# brightness_matrix = convert_to_average_brightness_matrix(pixel_matrix, wnew, hnew)
-# brightness_matrix = convert_to_luminosity_matrix(pixel_matrix, wnew, hnew)
-brightness_matrix = convert_to_lightness_matrix(pixel_matrix, wnew, hnew)
+    pixel_matrix = initialze_pixelarr(img_resized, wnew, hnew)
 
-ascii_art = assign_ascii(brightness_matrix, wnew, hnew)
+    # !!!!!!!uncomment only one of these three!!!!!!!!!
 
-#print the ascii art
-for elementw in ascii_art:
-    for elementh in elementw:
-        print(elementh, end="")
+    # brightness_matrix = convert_to_average_brightness_matrix(pixel_matrix, wnew, hnew)
+    # brightness_matrix = convert_to_luminosity_matrix(pixel_matrix, wnew, hnew)
+    brightness_matrix = convert_to_lightness_matrix(pixel_matrix, wnew, hnew)
 
-#stop the terminal from closing automatically on execution
-sleep(100)
+    ascii_art = assign_ascii(brightness_matrix, wnew, hnew)
+
+    #print the ascii art
+    for elementw in ascii_art:
+        for elementh in elementw:
+            print(elementh, end="")
+        print()
+
+    if isinstance(image, PIL.GifImagePlugin.GifImageFile):
+        os.system("cls")
+    print()
+
+sleep(50)        #stop the terminal from closing automatically on execution
+    
